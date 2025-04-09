@@ -49,6 +49,8 @@ def enviar_correo():
             "user_id": "rnOObqazssZG2_vCP",
             "template_params": {
                 "to_email": email,
+                # Nombres de variables actualizados según tu plantilla
+                "to_name": "",  # Si tienes este campo en tu plantilla
                 "producto_nombre": producto,
                 "cantidad": cantidad,
                 "total": total

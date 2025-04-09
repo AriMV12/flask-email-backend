@@ -4,16 +4,18 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+from flask_cors import CORS
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para todas las rutas
 
 @app.route('/')
 def index():
-    return "Servidor Flask en Render funcionando"
+    return "Servidor Flask en Render funcionando para Danary's Coffee"
 
 @app.route('/enviar_correo', methods=['POST'])
 def enviar_correo():
@@ -48,9 +50,14 @@ def enviar_correo():
         # Configuración del correo
         smtp_server = "smtp.gmail.com"
         port = 587
-        # Usar variables de entorno por seguridad
-        sender_email = os.environ.get("EMAIL_USER", "tucorreo@gmail.com")
-        password = os.environ.get("EMAIL_PASSWORD", "tu_contraseña_de_app")
+        
+        # Obtener credenciales de variables de entorno
+        sender_email = os.environ.get("EMAIL_USER")
+        password = os.environ.get("EMAIL_PASSWORD")
+        
+        if not sender_email or not password:
+            logger.error("Credenciales de email no configuradas")
+            return jsonify({"error": "Error de configuración del servidor"}), 500
 
         # Crear mensaje
         message = MIMEMultipart("alternative")

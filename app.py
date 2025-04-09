@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
-import requests
 import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -42,41 +45,61 @@ def enviar_correo():
             logger.error(f"Faltan datos: {', '.join(missing)}")
             return jsonify({"error": f"Faltan datos: {', '.join(missing)}"}), 400
 
-        # Construir payload para EmailJS
-        payload = {
-            "service_id": "service_4pzy4w8",
-            "template_id": "template_z02d8qe",
-            "user_id": "rnOObqazssZG2_vCP",
-            "template_params": {
-                "to_email": email,
-                # Nombres de variables actualizados según tu plantilla
-                "to_name": "",  # Si tienes este campo en tu plantilla
-                "producto_nombre": producto,
-                "cantidad": cantidad,
-                "total": total
-            }
-        }
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        port = 587
+        # Usar variables de entorno por seguridad
+        sender_email = os.environ.get("EMAIL_USER", "tucorreo@gmail.com")
+        password = os.environ.get("EMAIL_PASSWORD", "tu_contraseña_de_app")
+
+        # Crear mensaje
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "¡Gracias por tu compra en Danary's Coffee!"
+        message["From"] = sender_email
+        message["To"] = email
+
+        # Crear versión HTML del mensaje
+        html = f"""
+        <html>
+        <body>
+            <h1 style="color: #b35c27;">¡Gracias por tu compra en Danary's Coffee!</h1>
+            <p>Hemos recibido tu pedido y está siendo procesado.</p>
+            <h2>Detalles del pedido:</h2>
+            <ul>
+                <li><strong>Producto:</strong> {producto}</li>
+                <li><strong>Cantidad:</strong> {cantidad}</li>
+                <li><strong>Total:</strong> {total}</li>
+            </ul>
+            <p>Esperamos que disfrutes tu bebida ☕</p>
+            <p>Atentamente,<br>El equipo de Danary's Coffee</p>
+        </body>
+        </html>
+        """
         
-        headers = {"Content-Type": "application/json"}
-        logger.info(f"Enviando solicitud a EmailJS: {payload}")
+        # Convertir a objeto MIMEText
+        html_mime = MIMEText(html, "html")
         
-        # Enviar solicitud a EmailJS
-        response = requests.post(
-            "https://api.emailjs.com/api/v1.0/email/send", 
-            json=payload, 
-            headers=headers
-        )
+        # Agregar HTML al mensaje
+        message.attach(html_mime)
         
-        # Registrar respuesta de EmailJS
-        logger.info(f"Respuesta de EmailJS: Código={response.status_code}, Contenido={response.text}")
-        
-        if response.status_code == 200:
+        # Enviar el correo
+        server = None
+        try:
+            # Crear conexión segura con el servidor
+            server = smtplib.SMTP(smtp_server, port)
+            server.starttls()
+            # Iniciar sesión
+            server.login(sender_email, password)
+            # Enviar correo
+            server.sendmail(sender_email, email, message.as_string())
+            logger.info(f"Correo enviado correctamente a {email}")
             return jsonify({"message": "Correo enviado correctamente"}), 200
-        else:
-            return jsonify({
-                "error": f"Error de EmailJS: {response.text}",
-                "status_code": response.status_code
-            }), response.status_code
+        except Exception as e:
+            logger.error(f"Error al enviar correo: {str(e)}")
+            return jsonify({"error": f"Error al enviar correo: {str(e)}"}), 500
+        finally:
+            if server:
+                server.quit()
             
     except Exception as e:
         logger.exception("Excepción al procesar la solicitud")

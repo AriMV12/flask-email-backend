@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="red">#E53935</color>
+        <!-- Paleta café profesional -->
+        <color name="coffee_dark">#3E2723</color>
+        <color name="coffee_medium">#5D4037</color>
+        <color name="coffee_very_light">#D7CCC8</color>
+        <color name="cream_dark">#EFEBE9</color>
+        <color name="transparent">#00FFFFFF</color>
+        <color name="white">#FFFFFF</color>
+        <color name="brown_800">#8B4513</color>
+        <color name="brown_700">#A0522D</color>
+        <color name="brown_900">#5D4037</color>
+        <color name="cream_light">#FAF0E6</color>
+        <color name="gray_600">#757575</color>
+        <color name="coffee_brown">#694A38</color>
+        <color name="coffee_light">#E8D3B9</color>
+        <color name="coffee_text_light">#CCCCCC</color>
+</resources>

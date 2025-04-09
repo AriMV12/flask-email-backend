@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Proyectofinal</string>
+    <string name="crear_cuenta_html">¿No tienes cuenta? <font color="#1976D2">Crear una</font></string>
+</resources>
